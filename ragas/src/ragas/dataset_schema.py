@@ -80,6 +80,8 @@ class SingleTurnSample(BaseSample):
         The generated response for the query.
     multi_responses : Optional[List[str]]
         List of multiple responses generated for the query.
+    user_profile : Optional[str]
+        The personal information or user portrait associated with the query.
     reference : Optional[str]
         The reference answer for the query.
     rubric : Optional[Dict[str, str]]
@@ -91,6 +93,7 @@ class SingleTurnSample(BaseSample):
     reference_contexts: t.Optional[t.List[str]] = None
     response: t.Optional[str] = None
     multi_responses: t.Optional[t.List[str]] = None
+    user_profile: t.Optional[str] = None
     reference: t.Optional[str] = None
     rubrics: t.Optional[t.Dict[str, str]] = None
 
