@@ -5,7 +5,7 @@ from .few_shot_pydantic_prompt import (
     InMemoryExampleStore,
 )
 from .mixin import PromptMixin
-from .multi_modal_prompt import ImageTextPrompt, ImageTextPromptValue
+# from .multi_modal_prompt import ImageTextPrompt, ImageTextPromptValue
 from .pydantic_prompt import InputModel, OutputModel, PydanticPrompt
 
 __all__ = [
@@ -20,6 +20,6 @@ __all__ = [
     "PromptMixin",
     "InputModel",
     "OutputModel",
-    "ImageTextPrompt",
-    "ImageTextPromptValue",
+    # "ImageTextPrompt",
+    # "ImageTextPromptValue",
 ]

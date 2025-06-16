@@ -38,14 +38,14 @@ from ragas.metrics._goal_accuracy import (
     AgentGoalAccuracyWithReference,
 )
 from ragas.metrics._instance_specific_rubrics import InstanceRubrics
-from ragas.metrics._multi_modal_faithfulness import (
-    MultiModalFaithfulness,
-    multimodal_faithness,
-)
-from ragas.metrics._multi_modal_relevance import (
-    MultiModalRelevance,
-    multimodal_relevance,
-)
+# from ragas.metrics._multi_modal_faithfulness import (
+#     MultiModalFaithfulness,
+#     multimodal_faithness,
+# )
+# from ragas.metrics._multi_modal_relevance import (
+#     MultiModalRelevance,
+#     multimodal_relevance,
+# )
 from ragas.metrics._noise_sensitivity import NoiseSensitivity
 from ragas.metrics._nv_metrics import (
     AnswerAccuracy,

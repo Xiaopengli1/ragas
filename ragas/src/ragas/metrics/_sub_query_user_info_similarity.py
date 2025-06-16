@@ -44,8 +44,12 @@ class SubQueryUserInfoSimilarity(MetricWithEmbeddings, SingleTurnMetric):
 
         combined = f"{user_profile} {query}".strip()
 
-        base_emb = np.asarray(await self.embeddings.embed_text(combined))
+        base_emb = np.asarray(await self.embeddings.embed_query(combined))
         sub_embs = np.asarray(await self.embeddings.embed_documents(list(sub_queries)))
+
+        print(base_emb)
+
+        print(sub_embs)
 
         base_norm = np.linalg.norm(base_emb)
         sub_norms = np.linalg.norm(sub_embs, axis=1)
