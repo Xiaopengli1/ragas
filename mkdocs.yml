@@ -33,6 +33,8 @@ nav:
                   - Context Recall: concepts/metrics/available_metrics/context_recall.md
                   - Context Entities Recall: concepts/metrics/available_metrics/context_entities_recall.md
                   - Noise Sensitivity: concepts/metrics/available_metrics/noise_sensitivity.md
+                  - Cumulative Retrieval: concepts/metrics/available_metrics/multi_round_retrieval.md#cumulative-retrieval
+                  - Multi-round Information Gain: concepts/metrics/available_metrics/multi_round_retrieval.md#multi-round-information-gain
                   - Response Relevancy: concepts/metrics/available_metrics/answer_relevance.md
                   - Faithfulness: concepts/metrics/available_metrics/faithfulness.md
               - Nvidia Metrics:
