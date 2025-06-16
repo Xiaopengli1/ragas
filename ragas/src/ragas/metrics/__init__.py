@@ -61,6 +61,10 @@ from ragas.metrics._string import (
     NonLLMStringSimilarity,
     StringPresence,
 )
+from ragas.metrics._sub_query_coverage import (
+    SubQueryCoverage,
+    sub_query_semantic_coverage,
+)
 from ragas.metrics._summarization import SummarizationScore, summarization_score
 from ragas.metrics._tool_call_accuracy import ToolCallAccuracy
 from ragas.metrics._topic_adherence import TopicAdherenceScore
@@ -136,4 +140,6 @@ __all__ = [
     "multimodal_faithness",
     "MultiModalRelevance",
     "multimodal_relevance",
+    "SubQueryCoverage",
+    "sub_query_semantic_coverage",
 ]
