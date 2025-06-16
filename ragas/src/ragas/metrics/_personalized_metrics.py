@@ -182,3 +182,267 @@ class QueryDocPersonalizedRelevance(MetricWithLLM, SingleTurnMetric):
 
     async def _ascore(self, row: t.Dict, callbacks: Callbacks) -> float:
         return await self._single_turn_ascore(SingleTurnSample(**row), callbacks)
+
+
+# Metric 4: Semantic relevance between query and generated response
+@dataclass
+class QueryResponseSemanticRelevance(MetricWithEmbeddings, SingleTurnMetric):
+    """Semantic similarity between the query and generated response."""
+
+    name: str = "query_response_semantic_relevance"
+    _required_columns: t.Dict[MetricType, t.Set[str]] = field(
+        default_factory=lambda: {MetricType.SINGLE_TURN: {"user_input", "response"}}
+    )
+    output_type: MetricOutputType = MetricOutputType.CONTINUOUS
+
+    async def _single_turn_ascore(
+        self, sample: SingleTurnSample, callbacks: Callbacks
+    ) -> float:
+        assert self.embeddings is not None, "Embeddings not set"
+        query = sample.user_input or ""
+        resp = sample.response or ""
+        if resp == "":
+            return np.nan
+        q_emb = np.array(await self.embeddings.embed_text(query))
+        r_emb = np.array(await self.embeddings.embed_text(resp))
+        q_emb = q_emb / (np.linalg.norm(q_emb) + 1e-10)
+        r_emb = r_emb / (np.linalg.norm(r_emb) + 1e-10)
+        return float((q_emb @ r_emb.T).item())
+
+    async def _ascore(self, row: t.Dict, callbacks: Callbacks) -> float:
+        return await self._single_turn_ascore(SingleTurnSample(**row), callbacks)
+
+
+# Metric 5: Semantic coverage of query by generated response using LLM
+class SemanticCoverageInput(BaseModel):
+    query: str
+    response: str
+
+
+class SemanticCoverageOutput(BaseModel):
+    score: int
+
+
+class SemanticCoveragePrompt(
+    PydanticPrompt[SemanticCoverageInput, SemanticCoverageOutput]
+):
+    name: str = "semantic_coverage"
+    instruction: str = (
+        "Given a query and a generated response, rate how well the response covers "
+        "all key aspects of the query on a scale of 0 (no coverage) to 5 (complete coverage)."
+    )
+    input_model = SemanticCoverageInput
+    output_model = SemanticCoverageOutput
+
+
+@dataclass
+class QueryResponseSemanticCoverage(MetricWithLLM, SingleTurnMetric):
+    """LLM judged semantic coverage of the response against the query."""
+
+    name: str = "query_response_semantic_coverage"
+    _required_columns: t.Dict[MetricType, t.Set[str]] = field(
+        default_factory=lambda: {MetricType.SINGLE_TURN: {"user_input", "response"}}
+    )
+    output_type: MetricOutputType = MetricOutputType.CONTINUOUS
+    coverage_prompt: PydanticPrompt = field(default_factory=SemanticCoveragePrompt)
+    max_retries: int = 1
+
+    def init(self, run_config):
+        if self.llm is None:
+            raise ValueError("LLM is not set")
+
+    async def _single_turn_ascore(
+        self, sample: SingleTurnSample, callbacks: Callbacks
+    ) -> float:
+        assert self.llm is not None, "LLM not set"
+        query = sample.user_input or ""
+        resp = sample.response or ""
+        if resp == "":
+            return np.nan
+        output = await self.coverage_prompt.generate(
+            data=SemanticCoverageInput(query=query, response=resp),
+            llm=self.llm,
+            callbacks=callbacks,
+        )
+        return float(output.score)
+
+    async def _ascore(self, row: t.Dict, callbacks: Callbacks) -> float:
+        return await self._single_turn_ascore(SingleTurnSample(**row), callbacks)
+
+
+# Metric 6: Style consistency of generated response with predefined style
+class StyleConsistencyInput(BaseModel):
+    style: str
+    response: str
+
+
+class StyleConsistencyOutput(BaseModel):
+    score: int
+
+
+class StyleConsistencyPrompt(
+    PydanticPrompt[StyleConsistencyInput, StyleConsistencyOutput]
+):
+    name: str = "style_consistency"
+    instruction: str = (
+        "Given a target writing style and a generated response, rate how well the response matches the style "
+        "on a scale of 0 (not consistent) to 5 (fully consistent)."
+    )
+    input_model = StyleConsistencyInput
+    output_model = StyleConsistencyOutput
+
+
+@dataclass
+class StyleConsistencyScore(MetricWithLLM, SingleTurnMetric):
+    """LLM judged style consistency of the response."""
+
+    name: str = "style_consistency_score"
+    _required_columns: t.Dict[MetricType, t.Set[str]] = field(
+        default_factory=lambda: {MetricType.SINGLE_TURN: {"user_profile", "response"}}
+    )
+    output_type: MetricOutputType = MetricOutputType.CONTINUOUS
+    style_prompt: PydanticPrompt = field(default_factory=StyleConsistencyPrompt)
+    max_retries: int = 1
+
+    def init(self, run_config):
+        if self.llm is None:
+            raise ValueError("LLM is not set")
+
+    async def _single_turn_ascore(
+        self, sample: SingleTurnSample, callbacks: Callbacks
+    ) -> float:
+        assert self.llm is not None, "LLM not set"
+        style = sample.user_profile or ""
+        resp = sample.response or ""
+        if resp == "":
+            return np.nan
+        output = await self.style_prompt.generate(
+            data=StyleConsistencyInput(style=style, response=resp),
+            llm=self.llm,
+            callbacks=callbacks,
+        )
+        return float(output.score)
+
+    async def _ascore(self, row: t.Dict, callbacks: Callbacks) -> float:
+        return await self._single_turn_ascore(SingleTurnSample(**row), callbacks)
+
+
+# Metric 7: Format consistency of generated response with predefined format
+class FormatConsistencyInput(BaseModel):
+    format: str
+    response: str
+
+
+class FormatConsistencyOutput(BaseModel):
+    score: int
+
+
+class FormatConsistencyPrompt(
+    PydanticPrompt[FormatConsistencyInput, FormatConsistencyOutput]
+):
+    name: str = "format_consistency"
+    instruction: str = (
+        "Given a target response format and a generated response, rate how well the response follows the format "
+        "on a scale of 0 (not consistent) to 5 (fully consistent)."
+    )
+    input_model = FormatConsistencyInput
+    output_model = FormatConsistencyOutput
+
+
+@dataclass
+class FormatConsistencyScore(MetricWithLLM, SingleTurnMetric):
+    """LLM judged format consistency of the response."""
+
+    name: str = "format_consistency_score"
+    _required_columns: t.Dict[MetricType, t.Set[str]] = field(
+        default_factory=lambda: {MetricType.SINGLE_TURN: {"reference", "response"}}
+    )
+    output_type: MetricOutputType = MetricOutputType.CONTINUOUS
+    format_prompt: PydanticPrompt = field(default_factory=FormatConsistencyPrompt)
+    max_retries: int = 1
+
+    def init(self, run_config):
+        if self.llm is None:
+            raise ValueError("LLM is not set")
+
+    async def _single_turn_ascore(
+        self, sample: SingleTurnSample, callbacks: Callbacks
+    ) -> float:
+        assert self.llm is not None, "LLM not set"
+        fmt = sample.reference or ""
+        resp = sample.response or ""
+        if resp == "":
+            return np.nan
+        output = await self.format_prompt.generate(
+            data=FormatConsistencyInput(format=fmt, response=resp),
+            llm=self.llm,
+            callbacks=callbacks,
+        )
+        return float(output.score)
+
+    async def _ascore(self, row: t.Dict, callbacks: Callbacks) -> float:
+        return await self._single_turn_ascore(SingleTurnSample(**row), callbacks)
+
+
+# Metric 8: Knowledge conflict evaluation via refusal accuracy
+class RefusalJudgeInput(BaseModel):
+    query: str
+    user_profile: str | None = None
+    response: str
+
+
+class RefusalJudgeOutput(BaseModel):
+    refused: bool
+
+
+class RefusalJudgePrompt(PydanticPrompt[RefusalJudgeInput, RefusalJudgeOutput]):
+    name: str = "refusal_judge"
+    instruction: str = (
+        "Determine whether the response refuses to answer the query based on the user profile. "
+        "Return `true` if it is a refusal, otherwise `false`."
+    )
+    input_model = RefusalJudgeInput
+    output_model = RefusalJudgeOutput
+
+
+@dataclass
+class KnowledgeConflictAccuracy(MetricWithLLM, SingleTurnMetric):
+    """Accuracy of refusal behavior when query conflicts with knowledge boundaries."""
+
+    name: str = "knowledge_conflict_accuracy"
+    _required_columns: t.Dict[MetricType, t.Set[str]] = field(
+        default_factory=lambda: {
+            MetricType.SINGLE_TURN: {
+                "user_input",
+                "user_profile",
+                "response",
+                "reference",
+            }
+        }
+    )
+    output_type: MetricOutputType = MetricOutputType.DISCRETE
+    judge_prompt: PydanticPrompt = field(default_factory=RefusalJudgePrompt)
+    max_retries: int = 1
+
+    def init(self, run_config):
+        if self.llm is None:
+            raise ValueError("LLM is not set")
+
+    async def _single_turn_ascore(
+        self, sample: SingleTurnSample, callbacks: Callbacks
+    ) -> float:
+        assert self.llm is not None, "LLM not set"
+        query = sample.user_input or ""
+        profile = sample.user_profile or ""
+        resp = sample.response or ""
+        expected = bool(sample.reference)
+        output = await self.judge_prompt.generate(
+            data=RefusalJudgeInput(query=query, user_profile=profile, response=resp),
+            llm=self.llm,
+            callbacks=callbacks,
+        )
+        predicted = output.refused
+        return float(predicted == expected)
+
+    async def _ascore(self, row: t.Dict, callbacks: Callbacks) -> float:
+        return await self._single_turn_ascore(SingleTurnSample(**row), callbacks)

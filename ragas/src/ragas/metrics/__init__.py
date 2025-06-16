@@ -53,10 +53,15 @@ from ragas.metrics._nv_metrics import (
     ResponseGroundedness,
 )
 from ragas.metrics._personalized_metrics import (
+    FormatConsistencyScore,
+    KnowledgeConflictAccuracy,
     PersonalizedRetrievalNDCG,
     PersonalizedRetrievalRecall,
     QueryDocPersonalizedRelevance,
     QueryDocSemanticRelevance,
+    QueryResponseSemanticCoverage,
+    QueryResponseSemanticRelevance,
+    StyleConsistencyScore,
 )
 from ragas.metrics._rouge_score import RougeScore
 from ragas.metrics._simple_criteria import SimpleCriteriaScore
@@ -156,6 +161,11 @@ __all__ = [
     "sub_query_user_info_similarity",
     "PersonalizedRetrievalNDCG",
     "PersonalizedRetrievalRecall",
+    "QueryResponseSemanticRelevance",
+    "QueryResponseSemanticCoverage",
+    "StyleConsistencyScore",
+    "FormatConsistencyScore",
+    "KnowledgeConflictAccuracy",
     "QueryDocSemanticRelevance",
     "QueryDocPersonalizedRelevance",
 ]
