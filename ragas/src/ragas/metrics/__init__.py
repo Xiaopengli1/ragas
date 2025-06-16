@@ -65,6 +65,10 @@ from ragas.metrics._sub_query_coverage import (
     SubQueryCoverage,
     sub_query_semantic_coverage,
 )
+from ragas.metrics._sub_query_user_info_similarity import (
+    SubQueryUserInfoSimilarity,
+    sub_query_user_info_similarity,
+)
 from ragas.metrics._summarization import SummarizationScore, summarization_score
 from ragas.metrics._tool_call_accuracy import ToolCallAccuracy
 from ragas.metrics._topic_adherence import TopicAdherenceScore
@@ -142,4 +146,6 @@ __all__ = [
     "multimodal_relevance",
     "SubQueryCoverage",
     "sub_query_semantic_coverage",
+    "SubQueryUserInfoSimilarity",
+    "sub_query_user_info_similarity",
 ]
