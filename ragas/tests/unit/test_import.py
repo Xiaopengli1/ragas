@@ -91,6 +91,7 @@ def test_import_module():
         "context_recall",
         "context_precision",
         "faithfulness",
+        "sub_query_semantic_coverage",
     ]
 
     aspect_critics = [
