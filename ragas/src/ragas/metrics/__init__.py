@@ -52,6 +52,12 @@ from ragas.metrics._nv_metrics import (
     ContextRelevance,
     ResponseGroundedness,
 )
+from ragas.metrics._personalized_metrics import (
+    PersonalizedRetrievalNDCG,
+    PersonalizedRetrievalRecall,
+    QueryDocPersonalizedRelevance,
+    QueryDocSemanticRelevance,
+)
 from ragas.metrics._rouge_score import RougeScore
 from ragas.metrics._simple_criteria import SimpleCriteriaScore
 from ragas.metrics._sql_semantic_equivalence import LLMSQLEquivalence
@@ -148,4 +154,8 @@ __all__ = [
     "sub_query_semantic_coverage",
     "SubQueryUserInfoSimilarity",
     "sub_query_user_info_similarity",
+    "PersonalizedRetrievalNDCG",
+    "PersonalizedRetrievalRecall",
+    "QueryDocSemanticRelevance",
+    "QueryDocPersonalizedRelevance",
 ]
